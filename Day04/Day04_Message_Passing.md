@@ -95,4 +95,8 @@ int main(int argc, char **argv) {
    - While the Server is waiting, run `pidin -p <SERVER_PID> threads`. It should be in **RECEIVE** state.
    - If you can catch the Server during processing (add a `sleep(5)` before `MsgReply`), check the Client's state. It should be in **REPLY** state.
 
-**Submit your results! This is the foundation for Day 6 & 7 (Resource Managers).**
+**Server is running**
+![server](server.png)
+
+**Client is running and connect to server, sent message and received the reply**
+![client](client.png)
