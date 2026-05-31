@@ -1,0 +1,26 @@
+[search=${QNX_TARGET}/x86_64/boot/sys:${QNX_TARGET}/x86_64/bin:${QNX_TARGET}/x86_64/lib]
+
+[virtual=x86_64,elf] .bootstrap = {
+    procnto-smp-instr -v
+}
+
+[+script] .script = {
+    # Initialize basic drivers
+    devc-ser8250 -e -b115200 0x3f8,4 &
+    reopen /dev/ser1
+    
+    display_msg "----------------------------------------"
+    display_msg "Welcome to your Custom QNX Image!"
+    display_msg "----------------------------------------"
+    
+    # Start a shell
+    [+session] sh
+}
+
+# Essential Libraries
+libc.so
+libm.so
+
+# Essential Binaries
+sh
+pidin
