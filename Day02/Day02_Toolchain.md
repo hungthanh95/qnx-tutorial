@@ -65,4 +65,6 @@ chmod +x /tmp/hello
 /tmp/hello
 ```
 
-**Submit the output of your "Hello QNX" program and any questions about the toolchain!**
+
+**Output when runs hello app**
+![hello](qnx-hello.png)

@@ -68,4 +68,5 @@ Once your QNX system is running:
    - **System Services**: Can you see `slogger2`, `pci-server`, or `io-pkt-v6-hc`?
    - **Microkernel in action**: Notice how many drivers (network, disk, input) are running as separate user-space processes!
 
-**Submit your observation or any questions you have about the architecture!**
+**Here is the Terminal when QNX is running on QEMU**
+![Terminal](qnx-qemu-terminal.png)
