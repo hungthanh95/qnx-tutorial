@@ -65,6 +65,8 @@ chmod +x /tmp/hello
 /tmp/hello
 ```
 
+Analysis Question: Why did we use qcc instead of just using the standard gcc that comes with Ubuntu? What would happen if you tried to run a standard Linux ls binary on QNX?
+
 
 **Output when runs hello app**
 ![hello](qnx-hello.png)

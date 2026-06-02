@@ -14,18 +14,9 @@ A **Pulse** is a special type of message that is:
 - **Timers**: When a timer expires, it sends a pulse to your program.
 - **Event Notification**: Letting a process know "something happened" without waiting for it to finish.
 
-## 2. Shared Memory: The Speed King
-
-Shared Memory is the fastest IPC because once established, the kernel is no longer involved. Data is moved by simply writing to memory addresses.
-
-**Steps**:
-1. `shm_open()`: Create or open a shared memory object (appears in `/dev/shmem/`).
-2. `ftruncate()`: Set the size of the memory block.
-3. `mmap()`: Map the shared object into your process's address space.
-
 ---
 
-## 🏁 Day 5 Mission: The Pulse Listener
+## 🏁 Day 5 Mission 1: The Pulse Listener
 
 Your goal is to create a program that waits for both messages AND pulses on the same channel. This is how real QNX drivers work!
 
@@ -97,3 +88,85 @@ int main(int argc, char **argv) {
 
 **Pulse_receiver created a connect with PID 847910, pulse_sender sent a pulse to PID 847910.**
 ![](pulse_sender_receiver.png)
+
+## 2. Shared Memory: The Zero-copy King
+
+When you need to transfer megabytes of data (like a 4K camera frame), copying it via messages is too slow. **Shared Memory** allows two processes to look at the exact same physical RAM.
+
+### The Setup Workflow:
+1. **Process A**: Creates a memory object using `shm_open()`.
+2. **Process A**: Sets the size with `ftruncate()`.
+3. **Both Processes**: Map that memory into their own space using `mmap()`.
+
+```mermaid
+graph LR
+    subgraph "Process A"
+        A_Ptr[Pointer A]
+    end
+    subgraph "Physical RAM"
+        SharedBlock[Shared Memory Block]
+    end
+    subgraph "Process B"
+        B_Ptr[Pointer B]
+    end
+    A_Ptr --> SharedBlock
+    B_Ptr --> SharedBlock
+```
+---
+
+## 🏁 Day 5 Mission 2: The Shared Secret
+
+### Step 1: Create the "Writer" (`shm_writer.c`)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+int main() {
+    int fd = shm_open("/my_shared_mem", O_RDWR | O_CREAT, 0666);
+    ftruncate(fd, 4096);
+    
+    char *ptr = mmap(0, 4096, PROT_READ | O_RDWR, MAP_SHARED, fd, 0);
+    
+    sprintf(ptr, "QNX is fast!");
+    printf("Writer: I wrote a secret to memory.\n");
+    
+    munmap(ptr, 4096);
+    close(fd);
+    return 0;
+}
+```
+
+### Step 2: Create the "Reader" (`shm_reader.c`)
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <unistd.h>
+
+int main() {
+    int fd = shm_open("/my_shared_mem", O_RDONLY, 0666);
+    char *ptr = mmap(0, 4096, PROT_READ, MAP_SHARED, fd, 0);
+    
+    printf("Reader: I found the secret: %s\n", ptr);
+    
+    munmap(ptr, 4096);
+    close(fd);
+    shm_unlink("/my_shared_mem"); // Clean up
+    return 0;
+}
+```
+
+**Submission Task:**
+1. Run the writer, then the reader.
+2. Run `ls -l /dev/shmem`. Can you see your memory object there?
+3. **Observation**: What happens if you run the reader twice?
+
+**Submit your terminal logs and tell me: Why would you use a Pulse along with Shared Memory?**
+
+
